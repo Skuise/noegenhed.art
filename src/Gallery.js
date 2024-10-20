@@ -183,16 +183,18 @@ const contentTags = allTags.filter(tag => !commissionTypes.includes(tag));
 
 const Navigation = () => {
   return (
-<nav>
-  <div className="main-nav">
-    <ul>
-      <li><a href="#/">Home</a></li>
-      <li><a href="#/about">About</a></li>
-      <li><a href="#/contact">Contact</a></li>
-      <li><a href="#/terms">Terms</a></li>
-    </ul>
-  </div>
-</nav>
+    <nav>
+      <div className="main-nav">
+        <ul>
+          <li><a href="#/">Home</a></li>
+          <li><a href="#/about">About</a></li>
+          <li><a href="#/contact">Contact</a></li>
+          <li><a href="#/terms">Terms</a></li>
+        </ul>
+      </div>
+    </nav>
+  );
+}; // Add this closing parenthesis and semicolo
 
 const Gallery = () => {
   const [selectedCommissionTypes, setSelectedCommissionTypes] = useState([]);
