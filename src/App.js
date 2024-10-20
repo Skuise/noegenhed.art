@@ -6,11 +6,10 @@ import Contact from './Contact';
 import Terms from './Terms';
 
 function App() {
-  const path = window.location.pathname;
-
+  const path = window.location.pathname.replace('/noegenhed.art', '');
   return (
     <div className="App">
-      {path === '/' && <CommissionHomePage />}
+      {(path === '/' || path === '') && <CommissionHomePage />}
       {path === '/gallery' && <Gallery />}
       {path === '/about' && <About />}
       {path === '/contact' && <Contact />}
