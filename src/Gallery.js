@@ -232,7 +232,7 @@ const Gallery = () => {
     setDisplayedImages(filteredImages.slice(0, 20));
     setCurrentIndex(20);
     setIsLoading(false);
-  }, [selectedCommissionTypes, selectedContentTags, showNSFW]);
+  }, [selectedCommissionTypes, selectedContentTags, showNSFW, filteredImages]);
 
   const loadMoreImages = () => {
     setIsLoading(true);
