@@ -283,7 +283,7 @@ const Gallery = () => {
   return (
     <div className="gallery-page">
       <header>
-        <img src="/logo-colorized.png" alt="Noegenhed Logo" className="logo" />
+        <img src="https://noegenhed.s3.amazonaws.com/logo-colorized.png" alt="Noegenhed Logo" className="logo" />
         <Navigation />
       </header>
       <div className="gallery-content">

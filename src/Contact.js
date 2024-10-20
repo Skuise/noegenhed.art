@@ -38,7 +38,7 @@ const Contact = () => {
   return (
     <div className="contact-page">
       <header>
-        <img src="/logo-colorized.png" alt="Nogenhed Logo" className="logo" />
+        <img src="https://noegenhed.s3.amazonaws.com/logo-colorized.png" alt="Nogenhed Logo" className="logo" />
         <Navigation />
       </header>
       <div className="contact-form-container">
