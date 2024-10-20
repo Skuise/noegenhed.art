@@ -231,7 +231,7 @@ const Gallery = () => {
 
   useEffect(() => {
     setDisplayedImages(filteredImages);
-  }, [selectedCommissionTypes, selectedContentTags, showNSFW]);
+  }, [selectedCommissionTypes, selectedContentTags, showNSFW, filteredImages, selectedImage]);
 
   const handleImageClick = (img, index) => {
     setSelectedImage(img);
@@ -278,7 +278,7 @@ const Gallery = () => {
     if (selectedImage) {
       setSelectedImage(displayedImages[currentImageIndex]);
     }
-  }, [currentImageIndex, displayedImages]);
+  }, [currentImageIndex, displayedImages, selectedImage]);
 
   return (
     <div className="gallery-page">

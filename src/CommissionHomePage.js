@@ -1,11 +1,9 @@
 import React, { useState, useRef } from 'react';
 import './CommissionHomePage.css';
 
-const XMarkIcon = () => <span>×</span>;
 const MinusIcon = () => <span>-</span>;
 const PlusIcon = () => <span>+</span>;
-const LeftArrowIcon = () => <span>&#8592;</span>;
-const RightArrowIcon = () => <span>&#8594;</span>;
+
 
 const commissionTypes = [
   {
