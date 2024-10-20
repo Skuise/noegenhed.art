@@ -354,7 +354,7 @@ const CommissionHomePage = () => {
   return (
     <div className="commission-home-page">
       <header>
-        <img src="/logo-colorized.png" alt="Nogenhed Logo" className="logo" />
+        <img src="https://noegenhed.s3.amazonaws.com/logo-colorized.png" alt="Noegenhed Logo" className="logo" />
         <Navigation />
       </header>
       <div className="scrolling-banner-container">
