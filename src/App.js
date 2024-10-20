@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import CommissionHomePage from './CommissionHomePage';
 import Gallery from './Gallery';
 import About from './About';
@@ -6,14 +6,27 @@ import Contact from './Contact';
 import Terms from './Terms';
 
 function App() {
-  const path = window.location.pathname.replace('/noegenhed.art', '');
+  const [currentHash, setCurrentHash] = useState(window.location.hash.replace('#', '') || '/');
+
+  useEffect(() => {
+    const handleHashChange = () => {
+      setCurrentHash(window.location.hash.replace('#', '') || '/');
+    };
+
+    window.addEventListener('hashchange', handleHashChange);
+
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange);
+    };
+  }, []);
+
   return (
     <div className="App">
-      {(path === '/' || path === '') && <CommissionHomePage />}
-      {path === '/gallery' && <Gallery />}
-      {path === '/about' && <About />}
-      {path === '/contact' && <Contact />}
-      {path === '/terms' && <Terms />}
+      {currentHash === '/' && <CommissionHomePage />}
+      {currentHash === '/gallery' && <Gallery />}
+      {currentHash === '/about' && <About />}
+      {currentHash === '/contact' && <Contact />}
+      {currentHash === '/terms' && <Terms />}
     </div>
   );
 }
