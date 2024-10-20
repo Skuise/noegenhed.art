@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import './Gallery.css';
 
-const XMarkIcon = () => <span>×</span>;
+const LeftArrowIcon = () => <span>&#8592;</span>;
+const RightArrowIcon = () => <span>&#8594;</span>;
 
 // Gallery images data
 const galleryImages = [
@@ -174,6 +175,7 @@ const galleryImages = [
   { id: 167, src: 'https://noegenhed.s3.amazonaws.com/art/Reference sheets/Lycandope werewolf ref sheet my art July 2023 copy.png', tags: ['Reference', 'Transformation', 'Lactation', '💄'], nsfw: true },
   { id: 168, src: 'https://noegenhed.s3.amazonaws.com/art/Reference sheets/March 2022 sketchbook my art husky ref.png', tags: ['Reference'], nsfw: false },
   { id: 169, src: 'https://noegenhed.s3.amazonaws.com/art/Reference sheets/Noegenhed June 2024 – Brooke Katja ref sheet.png', tags: ['Reference', 'Transformation', '💄'], nsfw: true },
+
 ];
 
 const allTags = [...new Set(galleryImages.flatMap(img => img.tags))];
@@ -186,24 +188,24 @@ const Navigation = () => {
     <nav>
       <div className="main-nav">
         <ul>
-          <li><a href="#/">Home</a></li>
-          <li><a href="#/about">About</a></li>
-          <li><a href="#/contact">Contact</a></li>
-          <li><a href="#/terms">Terms</a></li>
+          <li><a href="/">Prices</a></li>
+          <li><a href="/gallery">Gallery</a></li>
+          <li><a href="/about">About</a></li>
+          <li><a href="/contact">Contact</a></li>
+          <li><a href="/terms">Terms</a></li>
         </ul>
       </div>
     </nav>
   );
-}; // Add this closing parenthesis and semicolo
+};
 
 const Gallery = () => {
   const [selectedCommissionTypes, setSelectedCommissionTypes] = useState([]);
   const [selectedContentTags, setSelectedContentTags] = useState([]);
-  const [showNSFW, setShowNSFW] = useState(true);  // Changed to true
+  const [showNSFW, setShowNSFW] = useState(true);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [displayedImages, setDisplayedImages] = useState([]);
-  const [currentIndex, setCurrentIndex] = useState(20);
-  const [isLoading, setIsLoading] = useState(false);
 
   const toggleCommissionType = (type) => {
     setSelectedCommissionTypes(prevTypes =>
@@ -228,24 +230,60 @@ const Gallery = () => {
   );
 
   useEffect(() => {
-    setIsLoading(true);
-    setDisplayedImages(filteredImages.slice(0, 20));
-    setCurrentIndex(20);
-    setIsLoading(false);
-  }, [selectedCommissionTypes, selectedContentTags, showNSFW, filteredImages]);
+    setDisplayedImages(filteredImages);
+  }, [selectedCommissionTypes, selectedContentTags, showNSFW]);
 
-  const loadMoreImages = () => {
-    setIsLoading(true);
-    const newImages = filteredImages.slice(currentIndex, currentIndex + 20);
-    setDisplayedImages(prevImages => [...prevImages, ...newImages]);
-    setCurrentIndex(prevIndex => prevIndex + 20);
-    setIsLoading(false);
+  const handleImageClick = (img, index) => {
+    setSelectedImage(img);
+    setCurrentImageIndex(index);
   };
+
+  const handleCloseModal = useCallback(() => {
+    setSelectedImage(null);
+    setCurrentImageIndex(0);
+  }, []);
+
+  const handlePrevImage = useCallback(() => {
+    setCurrentImageIndex((prevIndex) =>
+      prevIndex > 0 ? prevIndex - 1 : displayedImages.length - 1
+    );
+  }, [displayedImages.length]);
+
+  const handleNextImage = useCallback(() => {
+    setCurrentImageIndex((prevIndex) =>
+      prevIndex < displayedImages.length - 1 ? prevIndex + 1 : 0
+    );
+  }, [displayedImages.length]);
+
+  const handleKeyDown = useCallback((e) => {
+    if (e.key === 'ArrowLeft') {
+      handlePrevImage();
+    } else if (e.key === 'ArrowRight') {
+      handleNextImage();
+    } else if (e.key === 'Escape') {
+      handleCloseModal();
+    }
+  }, [handlePrevImage, handleNextImage, handleCloseModal]);
+
+  useEffect(() => {
+    if (selectedImage) {
+      window.addEventListener('keydown', handleKeyDown);
+      return () => {
+        window.removeEventListener('keydown', handleKeyDown);
+      };
+    }
+  }, [selectedImage, handleKeyDown]);
+
+  useEffect(() => {
+    if (selectedImage) {
+      setSelectedImage(displayedImages[currentImageIndex]);
+    }
+  }, [currentImageIndex, displayedImages]);
 
   return (
     <div className="gallery-page">
       <header>
-        <img src="https://noegenhed.s3.amazonaws.com/logo-colorized.png" alt="Noegenhed Logo" className="logo" />
+        <img src="/logo-colorized.png" alt="Noegenhed Logo" className="logo" />
         <Navigation />
       </header>
       <div className="gallery-content">
@@ -293,11 +331,11 @@ const Gallery = () => {
           </div>
         </div>
         <div className="gallery-grid">
-          {displayedImages.map(img => (
+          {displayedImages.map((img, index) => (
             <div 
               key={img.id} 
               className={`gallery-item ${img.nsfw && !showNSFW ? 'nsfw-blur' : ''}`}
-              onClick={() => setSelectedImage(img)}
+              onClick={() => handleImageClick(img, index)}
             >
               <img 
                 src={img.src} 
@@ -310,26 +348,38 @@ const Gallery = () => {
             </div>
           ))}
         </div>
-        {isLoading && <div className="loading">Loading...</div>}
-        {!isLoading && displayedImages.length < filteredImages.length && (
-          <div className="load-more-container">
-            <button className="load-more-button" onClick={loadMoreImages}>
-              Load More
-            </button>
-          </div>
-        )}
       </div>
       {selectedImage && (
-        <div className="modal-overlay" onClick={() => setSelectedImage(null)}>
+        <div className="modal-overlay" onClick={handleCloseModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <button className="close-button" onClick={() => setSelectedImage(null)}>
-              <XMarkIcon />
-            </button>
-            <img 
-              src={selectedImage.src} 
-              alt={`Full size: ${selectedImage.tags.join(', ')} - ${selectedImage.nsfw ? 'NSFW' : 'SFW'}`} 
-              className="full-size-image" 
-            />
+            <div className="modal-navigation">
+              <button className="nav-button prev" onClick={handlePrevImage}>
+                <LeftArrowIcon />
+              </button>
+              <img 
+                src={selectedImage.src} 
+                alt={`Full size: ${selectedImage.tags.join(', ')} - ${selectedImage.nsfw ? 'NSFW' : 'SFW'}`} 
+                className="full-size-image" 
+              />
+              <button className="nav-button next" onClick={handleNextImage}>
+                <RightArrowIcon />
+              </button>
+            </div>
+            <div className="image-previews">
+              {displayedImages.map((img, index) => (
+                <div 
+                  key={img.id}
+                  className={`preview-item ${index === currentImageIndex ? 'active' : ''}`}
+                  onClick={() => setCurrentImageIndex(index)}
+                >
+                  <img 
+                    src={img.src} 
+                    alt={`Preview: ${img.tags.join(', ')}`} 
+                    loading="lazy"
+                  />
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       )}
