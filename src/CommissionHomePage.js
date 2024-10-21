@@ -1,9 +1,8 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import './CommissionHomePage.css';
 
 const MinusIcon = () => <span>-</span>;
 const PlusIcon = () => <span>+</span>;
-
 
 const commissionTypes = [
   {
@@ -127,19 +126,37 @@ const backgroundTypes = [
   { type: "Simple background", price: "Varies by commission type" },
   { type: "Basic background", price: "Varies by commission type" },
   { type: "Complex background", price: "Varies by commission type" },
-
 ];
+
+// Add conversion rate (you may want to use a real-time API for this in a production environment)
+const conversionRate = 0.85; // 1 USD = 0.85 EUR
+
+const CurrencySwitch = ({ currency, setCurrency }) => {
+  return (
+    <div className="currency-switch">
+      <label className="switch">
+        <input
+          type="checkbox"
+          checked={currency === 'EUR'}
+          onChange={() => setCurrency(currency === 'USD' ? 'EUR' : 'USD')}
+        />
+        <span className="slider round"></span>
+      </label>
+      <span className="currency-label">{currency}</span>
+    </div>
+  );
+};
 
 const Navigation = () => {
   return (
     <nav>
       <div className="main-nav">
         <ul>
-<li><a href="#/">Prices</a></li>
-<li><a href="#/gallery">Gallery</a></li>
-<li><a href="#/about">About</a></li>
-<li><a href="#/contact">Contact</a></li>
-<li><a href="#/terms">Terms</a></li>
+          <li><a href="#/">Prices</a></li>
+          <li><a href="#/gallery">Gallery</a></li>
+          <li><a href="#/about">About</a></li>
+          <li><a href="#/contact">Contact</a></li>
+          <li><a href="#/terms">Terms</a></li>
         </ul>
       </div>
     </nav>
@@ -187,19 +204,22 @@ const ImageRow = ({ images }) => {
       </button>
       {selectedImage && (
         <div className="modal-overlay" onClick={() => setSelectedImage(null)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <button className="close-button" onClick={() => setSelectedImage(null)}>
-              <i className="fas fa-times"></i>
-            </button>
-            <img src={selectedImage} alt="Selected Example" className="full-size-image" />
-          </div>
+          <img src={selectedImage} alt="Selected Example" className="full-size-image" />
         </div>
       )}
     </div>
   );
 };
 
-const QuoteCalculator = () => {
+const formatPrice = (price, currency) => {
+  const numericPrice = parseFloat(price.replace('$', ''));
+  if (currency === 'EUR') {
+    return `€${(numericPrice * conversionRate).toFixed(2)}`;
+  }
+  return `$${numericPrice.toFixed(2)}`;
+};
+
+const QuoteCalculator = ({ currency }) => {
   const [commissionType, setCommissionType] = useState('');
   const [coverage, setCoverage] = useState('');
   const [background, setBackground] = useState('');
@@ -218,7 +238,7 @@ const QuoteCalculator = () => {
 
     const selectedType = commissionTypes.find(type => type.name === commissionType);
     const selectedCoverage = selectedType.tableData.find(item => item.coverage === coverage);
-    const basePrice = parseInt(selectedCoverage.price.replace('$', ''));
+    const basePrice = parseFloat(selectedCoverage.price.replace('$', ''));
     
     let total = basePrice;
 
@@ -227,14 +247,14 @@ const QuoteCalculator = () => {
     }
 
     if (additionalCharacters > 0 && selectedCoverage.additionalCharacters) {
-      const additionalPrice = parseInt(selectedCoverage.additionalCharacters.replace('$', ''));
+      const additionalPrice = parseFloat(selectedCoverage.additionalCharacters.replace('$', ''));
       total += additionalPrice * additionalCharacters;
     }
 
     if (selectedType.backgroundPrice && background) {
-      setQuote(`$${total} - $${total - selectedType.backgroundPrice.min + selectedType.backgroundPrice.max}`);
+      setQuote(`${formatPrice(total.toString(), currency)} - ${formatPrice((total - selectedType.backgroundPrice.min + selectedType.backgroundPrice.max).toString(), currency)}`);
     } else {
-      setQuote(`$${total}`);
+      setQuote(formatPrice(total.toString(), currency));
     }
   };
 
@@ -321,12 +341,48 @@ const Footer = () => {
   );
 };
 
+const ScrollToTopButton = () => {
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const toggleVisibility = () => {
+      if (window.pageYOffset > 300) {
+        setIsVisible(true);
+      } else {
+        setIsVisible(false);
+      }
+    };
+
+    window.addEventListener('scroll', toggleVisibility);
+
+    return () => window.removeEventListener('scroll', toggleVisibility);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  };
+
+  return (
+    <>
+      {isVisible && (
+        <button onClick={scrollToTop} className="scroll-to-top" aria-label="Scroll to top"></button>
+      )}
+    </>
+  );
+};
+
 const CommissionHomePage = () => {
+  const [currency, setCurrency] = useState('USD');
+
   return (
     <div className="commission-home-page">
       <header>
         <img src="https://noegenhed.s3.amazonaws.com/logo-colorized.png" alt="Nogenhed Logo" className="logo" />
         <Navigation />
+        <CurrencySwitch currency={currency} setCurrency={setCurrency} />
       </header>
       <div className="commission-types-container">
         {commissionTypes.map((type) => (
@@ -355,8 +411,8 @@ const CommissionHomePage = () => {
                     {type.tableData.map((row, index) => (
                       <tr key={index}>
                         <td>{row.coverage}</td>
-                        <td>{row.price}</td>
-                        {row.additionalCharacters && <td>{row.additionalCharacters}</td>}
+                        <td>{formatPrice(row.price, currency)}</td>
+                        {row.additionalCharacters && <td>{formatPrice(row.additionalCharacters, currency)}</td>}
                       </tr>
                     ))}
                   </tbody>
@@ -374,7 +430,7 @@ const CommissionHomePage = () => {
                     </thead>
                     <tbody>
                       <tr>
-                        <td>${type.backgroundPrice.min} - ${type.backgroundPrice.max}</td>
+                        <td>{formatPrice(type.backgroundPrice.min.toString(), currency)} - {formatPrice(type.backgroundPrice.max.toString(), currency)}</td>
                       </tr>
                     </tbody>
                   </table>
@@ -384,8 +440,9 @@ const CommissionHomePage = () => {
           </div>
         ))}
       </div>
-      <QuoteCalculator />
+      <QuoteCalculator currency={currency} />
       <Footer />
+      <ScrollToTopButton />
     </div>
   );
 };

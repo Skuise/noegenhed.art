@@ -6,11 +6,11 @@ const Navigation = () => {
     <nav>
       <div className="main-nav">
         <ul>
-<li><a href="#/">Prices</a></li>
-<li><a href="#/gallery">Gallery</a></li>
-<li><a href="#/about">About</a></li>
-<li><a href="#/contact">Contact</a></li>
-<li><a href="#/terms">Terms</a></li>
+          <li><a href="#/">Prices</a></li>
+          <li><a href="#/gallery">Gallery</a></li>
+          <li><a href="#/about">About</a></li>
+          <li><a href="#/contact">Contact</a></li>
+          <li><a href="#/terms">Terms</a></li>
         </ul>
       </div>
     </nav>
@@ -25,14 +25,21 @@ const Contact = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // TODO: Implement email sending functionality
-    console.log('Form submitted:', { name, email, commissionType, message });
-    alert('Thank you for your interest! We will contact you soon.');
+    
+    // Create mailto link
+    const mailtoLink = `mailto:your-email@example.com?subject=Commission Interest from ${name}&body=Name: ${name}%0D%0AEmail: ${email}%0D%0ACommission Type: ${commissionType}%0D%0AMessage: ${message}`;
+    
+    // Open default email client
+    window.location.href = mailtoLink;
+    
     // Reset form fields
     setName('');
     setEmail('');
     setCommissionType('');
     setMessage('');
+    
+    // Inform user
+    alert('Your email client should now open with the form details. If it doesn\'t, please contact us directly.');
   };
 
   return (

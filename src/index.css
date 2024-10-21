@@ -5,15 +5,9 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  cursor: url('%PUBLIC_URL%/noegenhed_cursor.png'), auto;
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
-}
-
-/* Apply clickable cursor to interactive elements */
-a, button, input[type="submit"], input[type="button"], select, .clickable {
-  cursor: url('%PUBLIC_URL%/noegenhed_cursor_click.png'), pointer;
 }

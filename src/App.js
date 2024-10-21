@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import './App.css';
 import CommissionHomePage from './CommissionHomePage';
 import Gallery from './Gallery';
 import About from './About';

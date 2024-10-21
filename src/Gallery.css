@@ -1,5 +1,5 @@
 :root {
-  --color-sage: #788374;
+  --color-sage: #ACB497;
   --color-cream: #f5e9bf;
   --color-rust: #aa644d;
   --color-plum: #372a39;
@@ -290,4 +290,43 @@ input:checked + .slider:before {
   border-radius: 4px;
 }
 
-/* ... (keep other existing styles) ... */
+.scroll-to-top {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: var(--color-rust);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  font-size: 24px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background-color 0.3s, transform 0.3s;
+  z-index: 1000;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  padding: 0; /* Remove any padding */
+}
+
+.scroll-to-top:hover {
+  background-color: #A0522D; /* Slightly lighter rust color on hover */
+  transform: scale(1.1);
+}
+
+.scroll-to-top::before {
+  content: '\2191'; /* Unicode for up arrow */
+  font-size: 28px;
+  line-height: 1; /* Ensure line height is equal to font size */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  margin: 0; /* Remove any margin */
+  padding: 0; /* Remove any padding */
+  text-align: center; /* Ensure text is centered */
+  margin-bottom: 5px;
+}

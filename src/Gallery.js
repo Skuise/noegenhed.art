@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import './Gallery.css';
 
 const LeftArrowIcon = () => <span>&#8592;</span>;
@@ -178,21 +178,16 @@ const galleryImages = [
 
 ];
 
-const allTags = [...new Set(galleryImages.flatMap(img => img.tags))];
-
-const commissionTypes = ['Sketch', 'Coloured Sketch', 'Reference', 'Illustration', 'Comic/Sequence'];
-const contentTags = allTags.filter(tag => !commissionTypes.includes(tag));
-
 const Navigation = () => {
   return (
     <nav>
       <div className="main-nav">
         <ul>
-<li><a href="#/">Prices</a></li>
-<li><a href="#/gallery">Gallery</a></li>
-<li><a href="#/about">About</a></li>
-<li><a href="#/contact">Contact</a></li>
-<li><a href="#/terms">Terms</a></li>
+          <li><a href="#/">Prices</a></li>
+          <li><a href="#/gallery">Gallery</a></li>
+          <li><a href="#/about">About</a></li>
+          <li><a href="#/contact">Contact</a></li>
+          <li><a href="#/terms">Terms</a></li>
         </ul>
       </div>
     </nav>
@@ -206,6 +201,11 @@ const Gallery = () => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [displayedImages, setDisplayedImages] = useState([]);
+
+  const allTags = useMemo(() => [...new Set(galleryImages.flatMap(img => img.tags))], []);
+  
+  const commissionTypes = useMemo(() => ['Sketch', 'Coloured Sketch', 'Reference', 'Illustration', 'Comic/Sequence'], []);
+  const contentTags = useMemo(() => allTags.filter(tag => !commissionTypes.includes(tag)), [allTags, commissionTypes]);
 
   const toggleCommissionType = (type) => {
     setSelectedCommissionTypes(prevTypes =>
@@ -223,20 +223,27 @@ const Gallery = () => {
     );
   };
 
-  const filteredImages = galleryImages.filter(img =>
-    (selectedCommissionTypes.length === 0 || selectedCommissionTypes.some(type => img.tags.includes(type))) &&
-    (selectedContentTags.length === 0 || selectedContentTags.some(tag => img.tags.includes(tag))) &&
-    (showNSFW || !img.nsfw)
-  );
+  const filteredImages = useCallback(() => {
+    return galleryImages.filter(img =>
+      (selectedCommissionTypes.length === 0 || selectedCommissionTypes.some(type => img.tags.includes(type))) &&
+      (selectedContentTags.length === 0 || selectedContentTags.some(tag => img.tags.includes(tag))) &&
+      (showNSFW || !img.nsfw)
+    );
+  }, [selectedCommissionTypes, selectedContentTags, showNSFW]);
 
   useEffect(() => {
-    setDisplayedImages(filteredImages);
-  }, [selectedCommissionTypes, selectedContentTags, showNSFW, filteredImages, selectedImage]);
+    const newDisplayedImages = filteredImages();
+    setDisplayedImages(newDisplayedImages);
+    if (selectedImage && !newDisplayedImages.includes(selectedImage)) {
+      setSelectedImage(null);
+      setCurrentImageIndex(0);
+    }
+  }, [filteredImages, selectedImage]);
 
-  const handleImageClick = (img, index) => {
+  const handleImageClick = useCallback((img, index) => {
     setSelectedImage(img);
     setCurrentImageIndex(index);
-  };
+  }, []);
 
   const handleCloseModal = useCallback(() => {
     setSelectedImage(null);
@@ -275,10 +282,10 @@ const Gallery = () => {
   }, [selectedImage, handleKeyDown]);
 
   useEffect(() => {
-    if (selectedImage) {
+    if (selectedImage && displayedImages.length > 0) {
       setSelectedImage(displayedImages[currentImageIndex]);
     }
-  }, [currentImageIndex, displayedImages, selectedImage]);
+  }, [currentImageIndex, displayedImages,selectedImage]);
 
   return (
     <div className="gallery-page">
